@@ -1,0 +1,12 @@
+FROM markhobson/maven-chrome:jdk-11
+
+WORKDIR /app
+
+# Copy the Maven project
+COPY tests/ .
+
+# Download dependencies (layer cache)
+RUN mvn dependency:go-offline -q
+
+# Default: run tests
+CMD ["mvn", "test", "-Dapp.url=${APP_URL}"]

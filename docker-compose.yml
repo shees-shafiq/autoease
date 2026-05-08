@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+
+  # ----------------------------------------------------------------
+  # MySQL Database
+  # ----------------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: autoease_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: autoease_db
+      MYSQL_USER: autoease_user
+      MYSQL_PASSWORD: autoease_pass
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ----------------------------------------------------------------
+  # Node.js Backend API
+  # ----------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: autoease_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: autoease_user
+      DB_PASSWORD: autoease_pass
+      DB_NAME: autoease_db
+      JWT_SECRET: supersecretjwtkey_changeme_in_prod
+      JWT_EXPIRES_IN: 7d
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ----------------------------------------------------------------
+  # React Frontend
+  # ----------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: autoease_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
