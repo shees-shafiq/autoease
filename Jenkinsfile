@@ -31,8 +31,8 @@ pipeline {
             steps {
                 echo "Starting AutoEase application..."
                 sh '''
-                    docker compose down --remove-orphans || true
-                    docker compose up -d --build
+                    docker-compose down || true
+                    docker-compose up -d --build
                     echo "Waiting 20 seconds for app to be healthy..."
                     sleep 20
                 '''
