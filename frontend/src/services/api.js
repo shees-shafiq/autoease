@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://autoease-env.eba-8frmmwhi.eu-north-1.elasticbeanstalk.com/api';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://51.21.3.171:5000/api';
 
 const api = axios.create({ baseURL: API_BASE });
 
