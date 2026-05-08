@@ -29,13 +29,12 @@ pipeline {
         // ----------------------------------------------------------
         stage('Deploy Application') {
             steps {
-                echo "Starting AutoEase application..."
-                sh '''
-                    docker-compose down || true
-                    docker-compose up -d --build
-                    echo "Waiting 20 seconds for app to be healthy..."
-                    sleep 20
-                '''
+                echo 'Starting AutoEase application...'
+                // Use the hyphenated command that we confirmed works on your EC2
+                sh 'docker-compose down || true'
+                sh 'docker-compose up -d --build'
+                echo 'Waiting for services to be ready...'
+                sleep 20
             }
         }
 
@@ -78,8 +77,8 @@ pipeline {
         // ----------------------------------------------------------
         stage('Teardown') {
             steps {
-                echo "Stopping application containers..."
-                sh 'docker compose down || true'
+                echo 'Cleaning up containers...'
+                sh 'docker-compose down'
             }
         }
     }
